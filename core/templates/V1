@@ -5,242 +5,240 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Peza - Emergency Services</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link href="https://fonts.cdnfonts.com/css/maria-2" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/helvetica-neue-55" rel="stylesheet">
+  <link href="https://fonts.cdnfonts.com/css/poppins" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+                
+                
+                
   <style>
-    @import url('https://fonts.cdnfonts.com/css/sf-pro-display');
-
     * {
       -webkit-tap-highlight-color: transparent;
       box-sizing: border-box;
     }
-
+    
     body {
-      font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #f2f2f7; /* iOS light background */
+      font-family: 'Poppins', sans-serif;
+      background: #f0f0f0; /* WhatsApp light gray background */
       min-height: 100vh;
       overflow-x: hidden;
-      color: #000;
-      padding-bottom: 80px; /* Space for bottom nav */
-      -webkit-font-smoothing: antialiased;
+      color: #111b21; /* WhatsApp dark text */
+      padding-bottom: 70px; /* Reduced for mobile */
     }
-
+    
     .header {
-      background: rgba(255, 255, 255, 0.95); /* iOS translucent effect */
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-bottom: 0.5px solid rgba(0, 0, 0, 0.2);
-      padding: 12px 16px;
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      background: white;
+      border-bottom: 1px solid #e4e6eb;
+      padding: 12px 16px; /* Compact padding */
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
-
+    
     .page {
       display: none;
-      animation: fadeIn 0.4s cubic-bezier(0.36, 0, 0.66, -0.56);
+      animation: fadeIn 0.3s ease-in-out;
     }
-
+    
     .page.active {
       display: block;
     }
-
+    
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
+    
     .emergency-card {
-      background: #fff;
-      border-radius: 18px; /* iOS rounded corners */
-      transition: transform 0.2s cubic-bezier(0.36, 0, 0.66, -0.56);
+      background: white;
+      border-radius: 12px;
+      transition: all 0.2s ease;
       cursor: pointer;
-      padding: 16px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      padding: 12px; /* Reduced for mobile */
     }
-
+    
     .emergency-card:active {
       transform: scale(0.98);
-      background: rgba(0, 0, 0, 0.03);
+      background: rgba(0, 0, 0, 0.05);
     }
-
+    
     .pulse-ring {
-      animation: pulse 1.8s cubic-bezier(0.36, 0, 0.66, -0.56) infinite;
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
-
+    
     @keyframes pulse {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.8; transform: scale(1.08); }
+      50% { opacity: 0.7; transform: scale(1.05); }
     }
-
+    
     .slide-up {
-      animation: slideUp 0.4s cubic-bezier(0.36, 0, 0.66, -0.56);
+      animation: slideUp 0.3s ease-out;
     }
-
+    
     @keyframes slideUp {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
+    
     .loading-spinner {
-      border: 4px solid rgba(0, 0, 0, 0.1);
-      border-top: 4px solid #007aff; /* iOS blue */
+      border: 3px solid rgba(0, 0, 0, 0.1);
+      border-top: 3px solid #00a884; /* WhatsApp teal */
       border-radius: 50%;
-      width: 36px;
-      height: 36px;
+      width: 32px; /* Smaller for mobile */
+      height: 32px;
       animation: spin 1s linear infinite;
     }
-
+    
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-
-    .ios-shadow {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    
+    .whatsapp-shadow {
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
-
+    
     .status-dot {
       display: inline-block;
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      margin-right: 6px;
+      margin-right: 4px;
     }
-
+    
     .status-dot.green {
-      background-color: #34c759; /* iOS green */
+      background-color: #00a884; /* WhatsApp teal */
     }
-
+    
     .status-dot.red {
-      background-color: #ff3b30; /* iOS red */
+      background-color: #d32f2f;
     }
-
+    
     .alert-item {
       display: flex;
       align-items: flex-start;
-      gap: 10px;
-      background: #fff;
-      border-radius: 18px;
-      padding: 14px;
-      margin-bottom: 10px;
-      transition: transform 0.2s cubic-bezier(0.36, 0, 0.66, -0.56);
+      gap: 8px; /* Reduced for mobile */
+      background: white;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 8px;
+      transition: all 0.2s;
     }
-
+    
     .alert-item:active {
       transform: scale(0.98);
     }
-
+    
     .alert-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      font-size: 18px;
+      font-size: 16px;
     }
-
-    .alert-icon.high { background: #ff3b3022; color: #ff3b30; }
-    .alert-icon.medium { background: #ff950022; color: #ff9500; }
-    .alert-icon.low, .alert-icon.weather, .alert-icon.time { background: #34c75922; color: #34c759; }
-
+    
+    .alert-icon.high { background: #fee6e9; color: #d32f2f; }
+    .alert-icon.medium { background: #fff8e1; color: #f57c00; }
+    .alert-icon.low, .alert-icon.weather, .alert-icon.time { background: #e6f3f1; color: #00a884; }
+    
     .alert-content {
       flex: 1;
       min-width: 0;
     }
-
+    
     .alert-title {
-      font-size: 14px;
+      font-size: 13px; /* Smaller for mobile */
       font-weight: 600;
-      color: #000;
-      margin-bottom: 4px;
+      color: #111b21;
+      margin-bottom: 3px;
     }
-
+    
     .alert-message, .alert-recommendation, .alert-time {
-      font-size: 13px;
-      color: #3c3c43;
+      font-size: 12px;
+      color: #65676b;
       line-height: 1.4;
     }
-
+    
     .alert-time {
-      margin-top: 4px;
-      color: #8e8e93;
+      margin-top: 3px;
+      color: #8696a0;
     }
-
+    
     .alert-badge {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 500;
-      padding: 3px 10px;
-      border-radius: 12px;
-      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: 6px;
     }
-
-    .alert-badge.high { background: #ff3b30; color: #fff; }
-    .alert-badge.medium { background: #ff9500; color: #fff; }
-    .alert-badge.low, .alert-badge.weather, .alert-badge.time { background: #34c759; color: #fff; }
-
+    
+    .alert-badge.high { background: #d32f2f; color: white; }
+    .alert-badge.medium { background: #f57c00; color: white; }
+    .alert-badge.low, .alert-badge.weather, .alert-badge.time { background: #00a884; color: white; }
+    
     .filter-btn {
-      font-size: 12px;
-      padding: 8px 14px;
-      border-radius: 14px;
-      background: #f2f2f7;
-      color: #000;
-      transition: all 0.2s cubic-bezier(0.36, 0, 0.66, -0.56);
+      font-size: 11px; /* Smaller for mobile */
+      padding: 6px 12px;
+      border-radius: 12px;
+      background: #e4e6eb;
+      color: #111b21;
+      transition: all 0.2s;
     }
-
+    
     .filter-btn.active, .filter-btn:hover {
-      background: #007aff;
-      color: #fff;
+      background: #00a884;
+      color: white;
     }
-
+    
     .bottom-nav {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-top: 0.5px solid rgba(0, 0, 0, 0.2);
+      background: white;
+      border-top: 1px solid #e4e6eb;
+      box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.1);
     }
-
+    
     .nav-item {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 4px;
-      padding: 10px;
+      gap: 2px;
+      padding: 8px; /* Reduced for mobile */
       cursor: pointer;
-      color: #8e8e93;
-      font-size: 11px;
-      transition: all 0.2s cubic-bezier(0.36, 0, 0.66, -0.56);
+      color: #65676b;
+      font-size: 10px; /* Smaller for mobile */
+      transition: all 0.2s;
     }
-
+    
     .nav-item i {
-      font-size: 22px;
+      font-size: 20px; /* Smaller for mobile */
     }
-
+    
     .nav-item.active {
-      color: #007aff;
+      color: #00a884;
     }
-
+    
     .nav-item:active {
       transform: scale(0.95);
     }
-
+    
     .weather-card {
-      background: #fff;
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .weather-stat {
-      background: #f2f2f7;
+      background: white;
       border-radius: 12px;
-      padding: 10px;
+      padding: 12px; /* Reduced for mobile */
+      margin-bottom: 8px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .weather-stat {
+      background: #e6f3f1;
+      border-radius: 8px;
+      padding: 8px; /* Reduced for mobile */
       text-align: center;
     }
   </style>
@@ -249,17 +247,17 @@
   <!-- Header -->
   <div class="header">
     <div class="max-w-md mx-auto flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-[#007aff] rounded-full flex items-center justify-center pulse-ring">
-          <span class="material-icons text-white text-lg">security</span>
+      <div class="flex items-center gap-2">
+        <div class="w-10 h-10 bg-[#00a884] rounded-full flex items-center justify-center pulse-ring">
+          <i class='bx bxs-shield-alt-2 text-white text-lg'></i>
         </div>
         <div>
-          <h1 class="text-[#007aff] font-semibold text-lg">Peza</h1>
-          <p class="text-[#8e8e93] text-xs" id="locationText"><span class="status-dot green"></span>Connected</p>
+          <h1 class="text-[#00a884] font-semibold text-base">Peza</h1>
+          <p class="text-gray-600 text-xs" id="locationText"><span class="status-dot green"></span>Connected</p>
         </div>
       </div>
-      <button onclick="refreshLocation()" class="text-[#8e8e93] p-2 hover:bg-[#f2f2f7] rounded-full transition">
-        <span class="material-icons text-lg">refresh</span>
+      <button onclick="refreshLocation()" class="text-gray-600 p-1 hover:bg-gray-100 rounded-full transition">
+        <i class='bx bx-refresh text-lg'></i>
       </button>
     </div>
   </div>
@@ -269,70 +267,73 @@
     <!-- Home Page -->
     <div id="homePage" class="page active">
       <!-- Greeting -->
-      <div class="text-center mb-6 slide-up">
-        <h2 id="welcome-title" class="text-lg font-semibold text-[#000]">Welcome, Guest!</h2>
-        <p class="text-[#8e8e93] text-sm">Stay safe with Peza emergency services</p>
+      <div class="text-center mb-4 slide-up">
+        <h2 id="welcome-title" class="text-base font-semibold text-[#111b21]">Welcome, Guest!</h2>
+        <p class="text-gray-600 text-xs">Stay safe with Peza emergency services</p>
       </div>
 
       <!-- Emergency Services -->
-      <div class="mb-6">
-        <h3 class="text-[#000] font-semibold text-lg mb-4">Emergency Services</h3>
-        <div class="grid grid-cols-2 gap-4">
-          <div onclick="findService('police')" class="emergency-card ios-shadow slide-up">
-            <div class="w-10 h-10 bg-[#007aff22] rounded-full flex items-center justify-center mb-3 mx-auto">
-              <span class="material-icons text-[#007aff] text-lg">local_police</span>
-            </div>
-            <h3 class="font-semibold text-sm text-center mb-1">Police</h3>
-            <p class="text-[#8e8e93] text-xs text-center">Emergency Response</p>
-          </div>
-          <div onclick="findService('hospital')" class="emergency-card ios-shadow slide-up" style="animation-delay: 0.1s">
-            <div class="w-10 h-10 bg-[#ff3b3022] rounded-full flex items-center justify-center mb-3 mx-auto">
-              <span class="material-icons text-[#ff3b30] text-lg">local_hospital</span>
-            </div>
-            <h3 class="font-semibold text-sm text-center mb-1">Hospital</h3>
-            <p class="text-[#8e8e93] text-xs text-center">Medical Care</p>
-          </div>
-          <div onclick="findService('ambulance')" class="emergency-card ios-shadow slide-up" style="animation-delay: 0.2s">
-            <div class="w-10 h-10 bg-[#34c75922] rounded-full flex items-center justify-center mb-3 mx-auto">
-              <span class="material-icons text-[#34c759] text-lg">medical_services</span>
-            </div>
-            <h3 class="font-semibold text-sm text-center mb-1">Ambulance</h3>
-            <p class="text-[#8e8e93] text-xs text-center">Quick Transport</p>
-          </div>
-          <div onclick="findService('fire')" class="emergency-card ios-shadow slide-up" style="animation-delay: 0.3s">
-            <div class="w-10 h-10 bg-[#ff950022] rounded-full flex items-center justify-center mb-3 mx-auto">
-              <span class="material-icons text-[#ff9500] text-lg">local_fire_department</span>
-            </div>
-            <h3 class="font-semibold text-sm text-center mb-1">Fire</h3>
-            <p class="text-[#8e8e93] text-xs text-center">Fire Service</p>
-          </div>
-        </div>
+  <!-- Include Google Material Icons stylesheet -->
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+<div class="mb-4">
+  <h3 class="text-[#111b21] font-semibold text-base mb-3">Emergency Services</h3>
+  <div class="grid grid-cols-2 gap-3">
+    <div onclick="findService('police')" class="emergency-card whatsapp-shadow slide-up">
+      <div class="w-8 h-8 bg-[#e6f3f1] rounded-full flex items-center justify-center mb-2 mx-auto">
+        <span class="material-icons text-[#00a884] text-base">local_police</span>
       </div>
+      <h3 class="font-semibold text-sm text-center mb-1">Police</h3>
+      <p class="text-gray-600 text-xs text-center">Emergency Response</p>
+    </div>
+    <div onclick="findService('hospital')" class="emergency-card whatsapp-shadow slide-up" style="animation-delay: 0.1s">
+      <div class="w-8 h-8 bg-[#fee6e9] rounded-full flex items-center justify-center mb-2 mx-auto">
+        <span class="material-icons text-[#d32f2f] text-base">local_hospital</span>
+      </div>
+      <h3 class="font-semibold text-sm text-center mb-1">Hospital</h3>
+      <p class="text-gray-600 text-xs text-center">Medical Care</p>
+    </div>
+    <div onclick="findService('ambulance')" class="emergency-card whatsapp-shadow slide-up" style="animation-delay: 0.2s">
+      <div class="w-8 h-8 bg-[#e6f3e6] rounded-full flex items-center justify-center mb-2 mx-auto">
+        <span class="material-icons text-[#2e7d32] text-base">medical_services</span>
+      </div>
+      <h3 class="font-semibold text-sm text-center mb-1">Ambulance</h3>
+      <p class="text-gray-600 text-xs text-center">Quick Transport</p>
+    </div>
+    <div onclick="findService('fire')" class="emergency-card whatsapp-shadow slide-up" style="animation-delay: 0.3s">
+      <div class="w-8 h-8 bg-[#ffefe6] rounded-full flex items-center justify-center mb-2 mx-auto">
+        <span class="material-icons text-[#f57c00] text-base">local_fire_department</span>
+      </div>
+      <h3 class="font-semibold text-sm text-center mb-1">Fire</h3>
+      <p class="text-gray-600 text-xs text-center">Fire Service</p>
+    </div>
+  </div>
+</div>
 
       <!-- Quick Stats -->
-      <div class="ios-shadow rounded-[18px] p-4 mb-6 slide-up" style="animation-delay: 0.4s">
-        <h3 class="font-semibold text-sm mb-4">Quick Stats</h3>
-        <div class="space-y-3">
+      <div class="whatsapp-shadow rounded-12px p-3 mb-4 slide-up" style="animation-delay: 0.4s">
+        <h3 class="font-semibold text-sm mb-3">Quick Stats</h3>
+        <div class="space-y-2">
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <span class="material-icons text-[#8e8e93] text-sm">access_time</span>
-              <span class="text-sm">Avg Response Time</span>
+            <div class="flex items-center gap-2">
+              <i class='bx bx-time-five text-gray-600 text-sm'></i>
+              <span class="text-xs">Avg Response Time</span>
             </div>
-            <span class="font-semibold text-sm">~15 min</span>
+            <span class="font-semibold text-xs">~15 min</span>
           </div>
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <span class="material-icons text-[#8e8e93] text-sm">place</span>
-              <span class="text-sm">Search Radius</span>
+            <div class="flex items-center gap-2">
+              <i class='bx bx-map text-gray-600 text-sm'></i>
+              <span class="text-xs">Search Radius</span>
             </div>
-            <span class="font-semibold text-sm">5 km</span>
+            <span class="font-semibold text-xs">5 km</span>
           </div>
           <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <span class="material-icons text-[#8e8e93] text-sm">notifications</span>
-              <span class="text-sm">Active Alerts</span>
+            <div class="flex items-center gap-2">
+              <i class='bx bx-bell text-gray-600 text-sm'></i>
+              <span class="text-xs">Active Alerts</span>
             </div>
-            <span class="font-semibold text-sm" id="homeAlertCount">0</span>
+            <span class="font-semibold text-xs" id="homeAlertCount">0</span>
           </div>
         </div>
       </div>
@@ -341,46 +342,46 @@
     <!-- Weather Page -->
     <div id="weatherPage" class="page">
       <!-- Current Weather -->
-      <div class="weather-card ios-shadow slide-up">
-        <div class="text-center mb-4">
-          <span class="material-icons text-5xl mb-2" id="weatherIcon">cloud</span>
-          <h2 class="text-2xl font-semibold mb-1" id="mainTemp">--°</h2>
-          <p class="text-base font-medium mb-1" id="weatherCondition">Loading...</p>
-          <p class="text-sm text-[#8e8e93]" id="weatherLocation">Getting location...</p>
+      <div class="weather-card whatsapp-shadow slide-up">
+        <div class="text-center mb-3">
+          <i class='bx bx-cloud text-4xl mb-2' id="weatherIcon"></i>
+          <h2 class="text-xl font-semibold mb-1" id="mainTemp">--°</h2>
+          <p class="text-sm font-medium mb-1" id="weatherCondition">Loading...</p>
+          <p class="text-xs text-gray-600" id="weatherLocation">Getting location...</p>
         </div>
-        <div class="grid grid-cols-3 gap-3">
+        <div class="grid grid-cols-3 gap-2">
           <div class="weather-stat">
-            <span class="material-icons text-base mb-1">water_drop</span>
-            <p class="text-sm text-[#8e8e93]">Humidity</p>
+            <i class='bx bx-droplet text-base mb-1'></i>
+            <p class="text-xs text-gray-600">Humidity</p>
             <p class="text-sm font-semibold" id="humidity">--%</p>
           </div>
           <div class="weather-stat">
-            <span class="material-icons text-base mb-1">air</span>
-            <p class="text-sm text-[#8e8e93]">Wind</p>
+            <i class='bx bx-wind text-base mb-1'></i>
+            <p class="text-xs text-gray-600">Wind</p>
             <p class="text-sm font-semibold" id="windSpeed">-- km/h</p>
           </div>
           <div class="weather-stat">
-            <span class="material-icons text-base mb-1">wb_sunny</span>
-            <p class="text-sm text-[#8e8e93]">UV Index</p>
+            <i class='bx bx-sun text-base mb-1'></i>
+            <p class="text-xs text-gray-600">UV Index</p>
             <p class="text-sm font-semibold" id="uvIndex">--</p>
           </div>
         </div>
       </div>
 
       <!-- Weather Alerts -->
-      <div class="ios-shadow rounded-[18px] p-4 mb-6 slide-up" style="animation-delay: 0.1s">
-        <div class="flex items-center justify-between mb-4">
+      <div class="whatsapp-shadow rounded-12px p-3 mb-4 slide-up" style="animation-delay: 0.1s">
+        <div class="flex items-center justify-between mb-3">
           <h3 class="font-semibold text-sm">Weather Alerts</h3>
-          <span class="text-sm text-[#8e8e93]" id="weatherAlertCount">0 alerts</span>
+          <span class="text-xs text-gray-600" id="weatherAlertCount">0 alerts</span>
         </div>
-        <div id="weatherAlertsList" class="space-y-3"></div>
+        <div id="weatherAlertsList" class="space-y-2"></div>
       </div>
 
       <!-- Forecast -->
-      <div class="ios-shadow rounded-[18px] p-4 slide-up" style="animation-delay: 0.2s">
-        <h3 class="font-semibold text-sm mb-4">Today's Forecast</h3>
-        <div class="text-center text-[#8e8e93] text-sm py-4">
-          <span class="material-icons text-2xl mb-1">schedule</span>
+      <div class="whatsapp-shadow rounded-12px p-3 slide-up" style="animation-delay: 0.2s">
+        <h3 class="font-semibold text-sm mb-3">Today's Forecast</h3>
+        <div class="text-center text-gray-600 text-xs py-4">
+          <i class='bx bx-time text-2xl mb-1'></i>
           <p>Hourly forecast coming soon</p>
         </div>
       </div>
@@ -388,15 +389,15 @@
 
     <!-- Alerts Page -->
     <div id="alertsPage" class="page">
-      <div class="ios-shadow rounded-[18px] p-4 mb-6 slide-up">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="font-semibold text-sm">All Alerts <span id="alert-count" class="text-sm text-[#8e8e93] ml-1">0</span></h3>
-          <button onclick="refreshAlerts()" class="text-[#8e8e93] p-2 hover:bg-[#f2f2f7] rounded-full transition">
-            <span class="material-icons text-lg">refresh</span>
+      <div class="whatsapp-shadow rounded-12px p-3 mb-4 slide-up">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-semibold text-sm">All Alerts <span id="alert-count" class="text-xs text-gray-600 ml-1">0</span></h3>
+          <button onclick="refreshAlerts()" class="text-gray-600 p-1 hover:bg-gray-100 rounded-full transition">
+            <i class='bx bx-refresh text-lg'></i>
           </button>
         </div>
-        <input id="alertSearch" type="text" placeholder="Search alerts..." class="w-full px-4 py-2 bg-[#f2f2f7] rounded-[14px] text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-[#007aff]">
-        <div class="flex flex-wrap gap-2 mb-4">
+        <input id="alertSearch" type="text" placeholder="Search alerts..." class="w-full px-3 py-1.5 bg-gray-100 rounded-lg text-xs mb-3 focus:outline-none focus:ring-2 focus:ring-[#00a884]">
+        <div class="flex flex-wrap gap-1 mb-3">
           <button onclick="filterAlerts('all')" class="filter-btn active">All</button>
           <button onclick="filterAlerts('high')" class="filter-btn">High</button>
           <button onclick="filterAlerts('medium')" class="filter-btn">Medium</button>
@@ -404,10 +405,10 @@
           <button onclick="filterAlerts('weather')" class="filter-btn">Weather</button>
           <button onclick="filterAlerts('time')" class="filter-btn">Time</button>
         </div>
-        <div id="current-time" class="text-sm text-[#8e8e93] mb-4">Last updated: --:--:--</div>
-        <div id="alerts-list" class="space-y-3"></div>
-        <div id="no-alerts" class="text-center text-[#8e8e93] text-sm py-4 hidden">
-          <span class="material-icons text-2xl mb-1">notifications_off</span>
+        <div id="current-time" class="text-xs text-gray-600 mb-3">Last updated: --:--:--</div>
+        <div id="alerts-list" class="space-y-2"></div>
+        <div id="no-alerts" class="text-center text-gray-600 text-xs py-4 hidden">
+          <i class='bx bx-bell-off text-2xl mb-1'></i>
           <p>No alerts at the moment</p>
         </div>
       </div>
@@ -416,46 +417,46 @@
 
   <!-- Results Modal -->
   <div id="resultsModal" class="fixed inset-0 bg-black/30 hidden z-50">
-    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[24px] max-h-[80vh] overflow-hidden">
-      <div class="sticky top-0 bg-white border-b border-[#d1d1d6] p-4">
+    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[80vh] overflow-hidden">
+      <div class="sticky top-0 bg-white border-b border-gray-200 p-3">
         <div class="flex items-center justify-between mb-2">
           <h3 class="font-semibold text-sm" id="modalTitle">Nearby Services</h3>
-          <button onclick="closeModal()" class="text-[#8e8e93] p-2 hover:bg-[#f2f2f7] rounded-full">
-            <span class="material-icons text-lg">close</span>
+          <button onclick="closeModal()" class="text-gray-600 p-1 hover:bg-gray-100 rounded-full">
+            <i class='bx bx-x text-lg'></i>
           </button>
         </div>
-        <div class="flex items-center gap-2 text-[#8e8e93] text-sm">
-          <span class="material-icons text-sm">location_on</span>
+        <div class="flex items-center gap-2 text-gray-600 text-xs">
+          <i class='bx bx-current-location text-sm'></i>
           <span id="modalSubtitle">Searching...</span>
         </div>
       </div>
       <div id="loadingState" class="flex flex-col items-center justify-center py-12">
-        <div class="loading-spinner mb-3"></div>
-        <p class="text-sm">Finding services nearby...</p>
+        <div class="loading-spinner mb-2"></div>
+        <p class="text-xs">Finding services nearby...</p>
       </div>
-      <div id="resultsList" class="overflow-y-auto max-h-[calc(80vh-90px)] p-4 space-y-3 hidden"></div>
+      <div id="resultsList" class="overflow-y-auto max-h-[calc(80vh-90px)] p-3 space-y-2 hidden"></div>
       <div id="noResults" class="hidden flex flex-col items-center justify-center py-12">
-        <span class="material-icons text-[#8e8e93] text-3xl mb-2">place</span>
-        <p class="font-semibold text-sm">No services found</p>
-        <p class="text-[#8e8e93] text-sm text-center">Try expanding your search radius</p>
+        <i class='bx bx-map-pin text-gray-400 text-3xl mb-2'></i>
+        <p class="font-semibold text-xs">No services found</p>
+        <p class="text-gray-600 text-xs text-center">Try expanding your search radius</p>
       </div>
     </div>
   </div>
 
   <!-- Bottom Navigation -->
   <div class="bottom-nav">
-    <div class="max-w-md mx-auto px-4 py-2">
+    <div class="max-w-md mx-auto px-4 py-1">
       <div class="flex items-center justify-around">
         <div class="nav-item active" onclick="switchPage('home')">
-          <span class="material-icons">home</span>
+          <i class='bx bx-home-alt'></i>
           <span>Home</span>
         </div>
         <div class="nav-item" onclick="switchPage('weather')">
-          <span class="material-icons">cloud</span>
+          <i class='bx bx-cloud'></i>
           <span>Weather</span>
         </div>
         <div class="nav-item" onclick="switchPage('alerts')">
-          <span class="material-icons">notifications</span>
+          <i class='bx bx-bell'></i>
           <span>Alerts</span>
         </div>
       </div>
@@ -567,40 +568,40 @@
       resultsList.classList.remove('hidden');
 
       const icons = { 
-        police: 'local_police', 
-        hospital: 'local_hospital', 
-        ambulance: 'medical_services', 
-        fire: 'local_fire_department' 
+        police: 'bxs-shield', 
+        hospital: 'bxs-hospital', 
+        ambulance: 'bxs-ambulance', 
+        fire: 'bxs-fire' 
       };
       const colors = { 
-        police: '#007aff', 
-        hospital: '#ff3b30', 
-        ambulance: '#34c759', 
-        fire: '#ff9500' 
+        police: '#00a884', 
+        hospital: '#d32f2f', 
+        ambulance: '#2e7d32', 
+        fire: '#f57c00' 
       };
 
       locations.forEach((loc, i) => {
         const item = document.createElement('div');
-        item.className = 'ios-shadow rounded-[18px] p-4 slide-up';
+        item.className = 'whatsapp-shadow rounded-12px p-3 slide-up';
         item.style.animationDelay = `${i * 0.05}s`;
         item.innerHTML = `
           <div class="flex items-start gap-3">
-            <div class="w-10 h-10 rounded-[12px] flex items-center justify-center" style="background: ${colors[category]}22;">
-              <span class="material-icons" style="color: ${colors[category]}; font-size: 20px;">${icons[category]}</span>
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: ${colors[category]}20;">
+              <i class='bx ${icons[category]}' style="color: ${colors[category]}; font-size: 16px;"></i>
             </div>
             <div class="flex-1 min-w-0">
               <h4 class="font-semibold text-sm mb-1 truncate">${loc.name}</h4>
-              <p class="text-[#8e8e93] text-sm mb-2 line-clamp-2">${loc.address}</p>
-              <div class="flex items-center gap-2 mb-2 text-sm text-[#8e8e93]">
-                <span class="material-icons text-sm">place</span>
+              <p class="text-gray-600 text-xs mb-2 line-clamp-2">${loc.address}</p>
+              <div class="flex items-center gap-2 mb-2 text-xs text-gray-600">
+                <i class='bx bx-map-pin'></i>
                 <span>${loc.distance}</span>
               </div>
-              <div class="flex gap-3">
-                <button onclick="callLocation('${loc.phone || 'N/A'}')" class="flex-1 bg-[#007aff] hover:bg-[#0051c7] text-white px-4 py-2 rounded-[14px] text-sm font-medium flex items-center justify-center gap-2 transition">
-                  <span class="material-icons text-sm">phone</span> Call
+              <div class="flex gap-2">
+                <button onclick="callLocation('${loc.phone || 'N/A'}')" class="flex-1 bg-[#00a884] hover:bg-[#008c6e] text-white px-3 py-1 rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition">
+                  <i class='bx bx-phone-call text-xs'></i> Call
                 </button>
-                <button onclick="openMaps(${loc.lat}, ${loc.lon}, '${loc.name}')" class="flex-1 bg-[#f2f2f7] hover:bg-[#e5e5ea] text-[#000] px-4 py-2 rounded-[14px] text-sm font-medium flex items-center justify-center gap-2 transition">
-                  <span class="material-icons text-sm">navigation</span> Directions
+                <button onclick="openMaps(${loc.lat}, ${loc.lon}, '${loc.name}')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-[#111b21] px-3 py-1 rounded-lg text-xs font-medium flex items-center justify-center gap-1 transition">
+                  <i class='bx bx-navigation text-xs'></i> Directions
                 </button>
               </div>
             </div>
@@ -636,21 +637,21 @@
       document.getElementById('uvIndex').textContent = current.uv;
       
       const condition = current.condition.text.toLowerCase();
-      let iconName = 'cloud';
-      if (condition.includes('sun') || condition.includes('clear')) iconName = 'wb_sunny';
-      else if (condition.includes('rain')) iconName = 'umbrella';
-      else if (condition.includes('snow')) iconName = 'ac_unit';
-      else if (condition.includes('storm') || condition.includes('thunder')) iconName = 'bolt';
-      else if (condition.includes('fog') || condition.includes('mist')) iconName = 'cloud_queue';
+      let iconClass = 'bx-cloud';
+      if (condition.includes('sun') || condition.includes('clear')) iconClass = 'bx-sun';
+      else if (condition.includes('rain')) iconClass = 'bx-cloud-rain';
+      else if (condition.includes('snow')) iconClass = 'bx-cloud-snow';
+      else if (condition.includes('storm') || condition.includes('thunder')) iconClass = 'bx-cloud-lightning';
+      else if (condition.includes('fog') || condition.includes('mist')) iconClass = 'bxs-cloud';
       
-      document.getElementById('weatherIcon').textContent = iconName;
+      document.getElementById('weatherIcon').className = `bx ${iconClass} text-4xl mb-2`;
       
       const weatherAlerts = currentAlerts.filter(a => a.type === 'weather');
       const weatherAlertsList = document.getElementById('weatherAlertsList');
       const weatherAlertCount = document.getElementById('weatherAlertCount');
       
       if (weatherAlerts.length === 0) {
-        weatherAlertsList.innerHTML = '<p class="text-center text-[#8e8e93] text-sm py-2">No weather alerts</p>';
+        weatherAlertsList.innerHTML = '<p class="text-center text-gray-600 text-xs py-2">No weather alerts</p>';
         weatherAlertCount.textContent = '0 alerts';
       } else {
         weatherAlertsList.innerHTML = '';
@@ -665,21 +666,21 @@
     function getAlertIcon(type, severity) {
       const icons = {
         safety: {
-          high: 'warning',
-          medium: 'lock',
-          low: 'info'
+          high: 'bxs-error',
+          medium: 'bxs-lock',
+          low: 'bxs-info-circle'
         },
         time: {
-          high: 'nights_stay',
-          medium: 'traffic',
-          low: 'schedule'
+          high: 'bxs-moon',
+          medium: 'bxs-traffic',
+          low: 'bxs-time'
         },
         weather: {
-          rain: 'umbrella',
-          sun: 'wb_sunny',
-          snow: 'ac_unit',
-          wind: 'air',
-          default: 'cloud'
+          rain: 'bxs-cloud-rain',
+          sun: 'bxs-sun',
+          snow: 'bxs-cloud-snow',
+          wind: 'bxs-wind',
+          default: 'bxs-cloud'
         }
       };
       return icons[type]?.[severity] || icons[type]?.default || icons.safety.low;
@@ -692,7 +693,7 @@
       div.setAttribute('data-type', alert.type);
       div.innerHTML = `
         <div class="alert-icon ${alert.type === 'weather' ? 'weather' : alert.type === 'time' ? 'time' : alert.severity}">
-          <span class="material-icons">${getAlertIcon(alert.type, alert.severity)}</span>
+          <i class='bx ${getAlertIcon(alert.type, alert.severity)}'></i>
         </div>
         <div class="alert-content">
           <div class="flex items-center justify-between mb-1">
