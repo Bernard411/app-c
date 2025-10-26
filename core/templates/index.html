@@ -1,0 +1,932 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Peza - Emergency Services</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f0f0; /* WhatsApp light gray background */
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: #111b21; /* WhatsApp dark text */
+    }
+    
+    .emergency-card {
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .emergency-card:active {
+      transform: scale(0.98);
+      background: rgba(0, 0, 0, 0.05);
+    }
+    
+    .pulse-ring {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.7;
+        transform: scale(1.05);
+      }
+    }
+    
+    .slide-up {
+      animation: slideUp 0.3s ease-out;
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .loading-spinner {
+      border: 3px solid rgba(0, 0, 0, 0.1);
+      border-top: 3px solid #00a884; /* WhatsApp teal */
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .location-item {
+      transition: all 0.2s;
+    }
+    
+    .location-item:active {
+      transform: scale(0.98);
+      background: rgba(0, 0, 0, 0.05);
+    }
+    
+    .whatsapp-shadow {
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+    
+    .status-dot.green {
+      background-color: #00a884; /* WhatsApp teal for connected */
+    }
+    
+    .status-dot.red {
+      background-color: #d32f2f; /* Red for unavailable */
+    }
+    
+    .alert-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: white;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 8px;
+      transition: all 0.2s;
+    }
+    
+    .alert-item:active {
+      transform: scale(0.98);
+    }
+    
+    .alert-icon {
+      width: 32px;
+      height: 32px;
+      background: #e6f3f1;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .alert-icon.high { background: #fee6e9; }
+    .alert-icon.medium { background: #fff8e1; }
+    .alert-icon.low, .alert-icon.weather { background: #e6f3f1; }
+    
+    .alert-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .alert-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #111b21;
+      margin-bottom: 4px;
+    }
+    
+    .alert-message, .alert-recommendation, .alert-time {
+      font-size: 12px;
+      color: #65676b;
+      line-height: 1.4;
+    }
+    
+    .alert-time {
+      margin-top: 4px;
+      color: #8696a0;
+    }
+    
+    .alert-badge {
+      font-size: 10px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: 8px;
+    }
+    
+    .alert-badge.high { background: #d32f2f; color: white; }
+    .alert-badge.medium { background: #f57c00; color: white; }
+    .alert-badge.low, .alert-badge.weather { background: #00a884; color: white; }
+    
+    .new-alert {
+      animation: slideUp 0.3s ease-out;
+    }
+    
+    .filter-btn {
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 12px;
+      background: #e4e6eb;
+      color: #111b21;
+      transition: all 0.2s;
+    }
+    
+    .filter-btn.active, .filter-btn:hover {
+      background: #00a884;
+      color: white;
+    }
+    
+    .refresh-btn {
+      transition: transform 0.5s;
+    }
+  </style>
+</head>
+<body class="pb-24">
+  <!-- Header -->
+  <div class="bg-white border-b border-gray-200 whatsapp-shadow">
+    <div class="max-w-md mx-auto px-4 py-3">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-[#00a884] rounded-full flex items-center justify-center pulse-ring">
+           <img src="{% static 'x.png' %}" alt="">
+          </div>
+          <div>
+            <h1 class="text-[#00a884] font-semibold text-lg">Peza</h1>
+            <p class="text-gray-600 text-xs" id="locationText"><span class="status-dot green"></span>Connected with WiFi</p>
+          </div>
+        </div>
+        <button onclick="refreshLocation()" class="text-gray-600 p-2 hover:bg-gray-100 rounded-full transition">
+          <i class='bx bx-refresh text-lg' id="refreshIcon"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-md mx-auto px-4 py-5">
+    
+    <!-- Greeting Section -->
+    <div class="text-center mb-5 slide-up">
+      <h2 id="welcome-title" class="text-[#111b21] text-lg font-semibold">Welcome, Guest!</h2>
+    </div>
+
+    <!-- Emergency Header -->
+    <div class="text-center mb-5 slide-up" style="animation-delay: 0.1s">
+      <h2 class="text-[#111b21] text-lg font-semibold">Emergency Services</h2>
+      <p class="text-gray-600 text-xs">Tap a service to find nearby locations</p>
+    </div>
+
+    <!-- Emergency Service Cards -->
+    <div class="grid grid-cols-2 gap-3 mb-5">
+      <!-- Police -->
+      <div onclick="findService('police')" class="emergency-card bg-white rounded-2xl p-4 whatsapp-shadow slide-up" style="animation-delay: 0.2s">
+        <div class="w-10 h-10 bg-[#e6f3f1] rounded-full flex items-center justify-center mb-3 mx-auto">
+          <i class='bx bxs-shield text-[#00a884] text-lg'></i>
+        </div>
+        <h3 class="text-[#111b21] font-semibold text-sm text-center">Police</h3>
+        <p class="text-gray-600 text-xs text-center">Emergency Response</p>
+      </div>
+
+      <!-- Hospital -->
+      <div onclick="findService('hospital')" class="emergency-card bg-white rounded-2xl p-4 whatsapp-shadow slide-up" style="animation-delay: 0.3s">
+        <div class="w-10 h-10 bg-[#fee6e9] rounded-full flex items-center justify-center mb-3 mx-auto">
+          <i class='bx bxs-hospital text-[#d32f2f] text-lg'></i>
+        </div>
+        <h3 class="text-[#111b21] font-semibold text-sm text-center">Hospital</h3>
+        <p class="text-gray-600 text-xs text-center">Medical Care</p>
+      </div>
+
+      <!-- Ambulance -->
+      <div onclick="findService('ambulance')" class="emergency-card bg-white rounded-2xl p-4 whatsapp-shadow slide-up" style="animation-delay: 0.4s">
+        <div class="w-10 h-10 bg-[#e6f3e6] rounded-full flex items-center justify-center mb-3 mx-auto">
+          <i class='bx bxs-ambulance text-[#2e7d32] text-lg'></i>
+        </div>
+        <h3 class="text-[#111b21] font-semibold text-sm text-center">Ambulance</h3>
+        <p class="text-gray-600 text-xs text-center">Quick Transport</p>
+      </div>
+
+      <!-- Fire -->
+      <div onclick="findService('fire')" class="emergency-card bg-white rounded-2xl p-4 whatsapp-shadow slide-up" style="animation-delay: 0.5s">
+        <div class="w-10 h-10 bg-[#ffefe6] rounded-full flex items-center justify-center mb-3 mx-auto">
+          <i class='bx bxs-fire text-[#f57c00] text-lg'></i>
+        </div>
+        <h3 class="text-[#111b21] font-semibold text-sm text-center">Fire</h3>
+        <p class="text-gray-600 text-xs text-center">Fire Service</p>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="bg-white rounded-2xl p-4 whatsapp-shadow mb-5 slide-up" style="animation-delay: 0.6s">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i class='bx bx-time-five text-gray-600 text-base'></i>
+          <span class="text-[#111b21] text-sm">Average Response</span>
+        </div>
+        <span class="text-[#111b21] font-semibold">~15 min</span>
+      </div>
+      <div class="flex items-center justify-between mt-2">
+        <div class="flex items-center gap-2">
+          <i class='bx bx-map text-gray-600 text-base'></i>
+          <span class="text-[#111b21] text-sm">Search Radius</span>
+        </div>
+        <span class="text-[#111b21] font-semibold">5 km</span>
+      </div>
+    </div>
+
+    <!-- Alerts Section -->
+    <div class="bg-white rounded-2xl p-4 whatsapp-shadow mb-5 slide-up" style="animation-delay: 0.7s">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-[#111b21] font-semibold text-base">Safety & Weather Alerts <span id="alert-count" class="text-xs text-gray-600">0</span></h3>
+        <button onclick="refreshAlerts()" class="text-gray-600 p-2 hover:bg-gray-100 rounded-full refresh-btn transition">
+          <i class='bx bx-refresh text-lg'></i>
+        </button>
+      </div>
+      <div class="flex items-center gap-2 mb-3">
+        <input id="alertSearch" type="text" placeholder="Search alerts..." class="w-full px-3 py-1.5 bg-gray-100 rounded-lg text-sm text-[#111b21] focus:outline-none focus:ring-2 focus:ring-[#00a884]">
+      </div>
+      <div class="flex flex-wrap gap-2 mb-3">
+        <button onclick="filterAlerts('all')" class="filter-btn active">All</button>
+        <button onclick="filterAlerts('high')" class="filter-btn">High</button>
+        <button onclick="filterAlerts('medium')" class="filter-btn">Medium</button>
+        <button onclick="filterAlerts('low')" class="filter-btn">Low</button>
+        <button onclick="filterAlerts('weather')" class="filter-btn">Weather</button>
+      </div>
+      <div id="weather-details" class="text-xs text-gray-600 mb-2">Loading weather...</div>
+      <div id="current-time" class="text-xs text-gray-600 mb-3">Last updated: --:--:--</div>
+      <div id="alerts-list" class="space-y-2"></div>
+      <div id="no-alerts" class="text-center text-gray-600 text-sm hidden">No alerts at the moment</div>
+    </div>
+
+  </div>
+
+  <!-- Results Modal (Hidden by default) -->
+  <div id="resultsModal" class="fixed inset-0 bg-black/30 hidden z-50">
+    <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[80vh] overflow-hidden">
+      <!-- Modal Header -->
+      <div class="sticky top-0 bg-white border-b border-gray-200 p-4">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="text-[#111b21] font-semibold text-base" id="modalTitle">Nearby Services</h3>
+          <button onclick="closeModal()" class="text-gray-600 p-2 hover:bg-gray-100 rounded-full">
+            <i class='bx bx-x text-lg'></i>
+          </button>
+        </div>
+        <div class="flex items-center gap-2 text-gray-600 text-xs">
+          <i class='bx bx-current-location text-sm'></i>
+          <span id="modalSubtitle">Searching...</span>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loadingState" class="flex flex-col items-center justify-center py-16">
+        <div class="loading-spinner mb-3"></div>
+        <p class="text-[#111b21] text-sm">Finding nearest services...</p>
+      </div>
+
+      <!-- Results List -->
+      <div id="resultsList" class="overflow-y-auto max-h-[calc(80vh-100px)] p-4 space-y-3 hidden">
+        <!-- Results will be inserted here -->
+      </div>
+
+      <!-- No Results State -->
+      <div id="noResults" class="hidden flex flex-col items-center justify-center py-16 px-4">
+        <i class='bx bx-sad text-gray-400 text-5xl mb-3'></i>
+        <p class="text-[#111b21] text-center font-semibold text-sm">No services found nearby</p>
+        <p class="text-gray-600 text-center text-xs">Try expanding your search radius or check another service type</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 whatsapp-shadow">
+    <div class="max-w-md mx-auto px-4 py-2">
+      <div class="flex items-center justify-around">
+        <!-- <button class="flex flex-col items-center gap-0.5 text-[#00a884]">
+          <i class='bx bxs-home text-lg'></i>
+          <span class="text-xs font-medium">Home</span>
+        </button>
+        <button class="flex flex-col items-center gap-0.5 text-gray-600">
+          <i class='bx bx-history text-lg'></i>
+          <span class="text-xs font-medium">History</span>
+        </button>
+        <button class="flex flex-col items-center gap-0.5 text-gray-600">
+          <i class='bx bx-user text-lg'></i>
+          <span class="text-xs font-medium">Profile</span>
+        </button> -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let userLocation = null;
+    
+    // API Configuration
+    const API_BASE_URL = 'http://localhost:8000'; // Change this to your Django server
+    
+    // Greeting Script
+    function updateWelcomeMessage() {
+      const now = new Date();
+      const hour = now.getHours();
+      const username = "{{ user.username }}" || "Guest"; // Fallback to "Guest" if Django variable is unavailable
+      const welcomeTitle = document.getElementById('welcome-title');
+      
+      let greeting;
+      if (hour >= 0 && hour < 12) {
+        greeting = `Mwadzuka!`;
+      } else if (hour >= 12 && hour < 17) {
+        greeting = `Mwaswera bwanji!`;
+      } else {
+        greeting = `Mulibwanji, anzathu!`;
+      }
+      
+      welcomeTitle.textContent = greeting;
+    }
+
+    // Get user location on load
+    document.addEventListener('DOMContentLoaded', function() {
+      updateWelcomeMessage();
+      getCurrentLocation();
+    });
+    
+    function getCurrentLocation() {
+      const locationText = document.getElementById('locationText');
+      const statusDot = locationText.querySelector('.status-dot');
+      
+      if (navigator.geolocation) {
+        locationText.innerHTML = '<span class="status-dot green"></span>Getting location...';
+        
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            userLocation = {
+              lat: position.coords.latitude,
+              lon: position.coords.longitude
+            };
+            locationText.innerHTML = '<span class="status-dot green"></span>Connected';
+            // Trigger weather fetch after location is obtained
+            fetchWeatherAndAlerts();
+          },
+          (error) => {
+            console.error('Location error:', error);
+            locationText.innerHTML = '<span class="status-dot red"></span>Location unavailable';
+            userLocation = { lat: -13.9626, lon: 33.7741 };
+            alert('Please enable location services to find nearby emergency services.');
+            // Still fetch time-based alerts
+            fetchWeatherAndAlerts();
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          }
+        );
+      } else {
+        locationText.innerHTML = '<span class="status-dot red"></span>Location not supported';
+        userLocation = { lat: -13.9626, lon: 33.7741 };
+        fetchWeatherAndAlerts();
+      }
+    }
+    
+    function refreshLocation() {
+      const icon = document.getElementById('refreshIcon');
+      icon.style.transform = 'rotate(360deg)';
+      icon.style.transition = 'transform 0.5s';
+      
+      getCurrentLocation();
+      
+      setTimeout(() => {
+        icon.style.transform = 'rotate(0deg)';
+      }, 500);
+    }
+    
+    async function findService(category) {
+      if (!userLocation) {
+        alert('Please wait for location to be detected');
+        return;
+      }
+      
+      const modal = document.getElementById('resultsModal');
+      const loadingState = document.getElementById('loadingState');
+      const resultsList = document.getElementById('resultsList');
+      const noResults = document.getElementById('noResults');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalSubtitle = document.getElementById('modalSubtitle');
+      
+      const titles = {
+        police: 'Police Stations',
+        hospital: 'Hospitals',
+        ambulance: 'Ambulance Services',
+        fire: 'Fire Stations'
+      };
+      modalTitle.textContent = titles[category] || 'Emergency Services';
+      modalSubtitle.textContent = 'Searching nearby...';
+      
+      modal.classList.remove('hidden');
+      loadingState.classList.remove('hidden');
+      resultsList.classList.add('hidden');
+      noResults.classList.add('hidden');
+      
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/api/peza/?lat=${userLocation.lat}&lon=${userLocation.lon}&category=${category}`
+        );
+        
+        if (!response.ok) throw new Error('Failed to fetch services');
+        
+        const data = await response.json();
+        
+        loadingState.classList.add('hidden');
+        
+        if (data.locations && data.locations.length > 0) {
+          modalSubtitle.textContent = `Found ${data.locations.length} locations`;
+          displayResults(data.locations, category);
+        } else {
+          noResults.classList.remove('hidden');
+        }
+        
+      } catch (error) {
+        console.error('Error:', error);
+        loadingState.classList.add('hidden');
+        noResults.classList.remove('hidden');
+        alert('Error finding services. Please check your internet connection.');
+      }
+    }
+    
+    function displayResults(locations, category) {
+      const resultsList = document.getElementById('resultsList');
+      resultsList.innerHTML = '';
+      resultsList.classList.remove('hidden');
+      
+      const icons = {
+        police: 'bxs-shield',
+        hospital: 'bxs-hospital',
+        ambulance: 'bxs-ambulance',
+        fire: 'bxs-fire'
+      };
+      
+      const colors = {
+        police: 'teal',
+        hospital: 'red',
+        ambulance: 'green',
+        fire: 'orange'
+      };
+      
+      const icon = icons[category] || 'bx-building';
+      const color = colors[category] || 'gray';
+      
+      locations.forEach((location, index) => {
+        const item = document.createElement('div');
+        item.className = 'location-item bg-white rounded-2xl p-4 whatsapp-shadow';
+        item.style.animationDelay = `${index * 0.05}s`;
+        
+        const phone = location.phone || 'N/A';
+        
+        item.innerHTML = `
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 bg-${color}-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i class='bx ${icon} text-${color}-600 text-base'></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h4 class="text-[#111b21] font-semibold text-sm mb-1 truncate">${location.name}</h4>
+              <p class="text-gray-600 text-xs mb-2 line-clamp-2">${location.address}</p>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-gray-600 text-xs">Distance: ${location.distance}</span>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="callLocation('${phone}')" class="flex-1 bg-[#00a884] hover:bg-[#008c6e] text-white px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center justify-center gap-1">
+                  <i class='bx bx-phone-call text-sm'></i>
+                  Call
+                </button>
+                <button onclick="openMaps(${location.lat}, ${location.lon}, '${location.name}')" class="flex-1 bg-gray-100 hover:bg-gray-200 text-[#111b21] px-3 py-1.5 rounded-lg text-sm font-medium transition flex items-center justify-center gap-1">
+                  <i class='bx bx-navigation text-sm'></i>
+                  Directions
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+        
+        resultsList.appendChild(item);
+      });
+    }
+    
+    function callLocation(phone) {
+      if (phone === 'N/A') {
+        alert('Phone number not available for this location');
+        return;
+      }
+      window.location.href = `tel:${phone}`;
+    }
+    
+    function openMaps(lat, lon, name) {
+      const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lon}&destination_place_id=${encodeURIComponent(name)}`;
+      window.open(mapsUrl, '_blank');
+    }
+    
+    function closeModal() {
+      document.getElementById('resultsModal').classList.add('hidden');
+    }
+    
+    document.getElementById('resultsModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+  </script>
+
+  <!-- Weather and Alerts Script -->
+  <script>
+    const apiKey = 'b0497bc522524401831134643231610';
+    let currentAlerts = [];
+    let weatherData = null;
+
+    function getAlertIcon(type, severity) {
+      const icons = {
+        safety: {
+          high: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />',
+          medium: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />',
+          low: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />'
+        },
+        weather: {
+          rain: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 13v6m4-6v6m4-6v6M3 16.5a3.5 3.5 0 017 0A2.5 2.5 0 0012.5 21h-9z" />',
+          sun: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />',
+          snow: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />',
+          wind: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />',
+          default: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />'
+        }
+      };
+      
+      if (type === 'weather') {
+        return icons.weather[severity] || icons.weather.default;
+      }
+      return icons.safety[severity] || icons.safety.low;
+    }
+
+    function createAlertElement(alert) {
+      const alertDiv = document.createElement('div');
+      alertDiv.className = `alert-item new-alert`;
+      alertDiv.setAttribute('data-priority', alert.severity);
+      alertDiv.setAttribute('data-type', alert.type);
+      
+      const iconClass = alert.type === 'weather' ? 'weather' : alert.severity;
+      const badgeClass = alert.type === 'weather' ? 'weather' : alert.severity;
+      
+      alertDiv.innerHTML = `
+        <div class="alert-icon ${iconClass}">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            ${getAlertIcon(alert.type, alert.severity)}
+          </svg>
+        </div>
+        <div class="alert-content">
+          <div class="flex items-center">
+            <div class="alert-title">${alert.title}</div>
+            <span class="alert-badge ${badgeClass}">${alert.type === 'weather' ? 'Weather' : alert.severity.charAt(0).toUpperCase() + alert.severity.slice(1)}</span>
+          </div>
+          <div class="alert-message">${alert.message}</div>
+          ${alert.recommendation ? `<div class="alert-recommendation">Tip: ${alert.recommendation}</div>` : ''}
+          <div class="alert-time">${new Date().toLocaleTimeString()} • Live Alert</div>
+        </div>
+      `;
+      
+      return alertDiv;
+    }
+
+    function checkTimeBasedAlerts(hour) {
+      const alerts = [];
+      
+      if (hour >= 21 || hour <= 5) {
+        const severity = (hour >= 0 && hour <= 3) ? 'high' : 'medium';
+        const message = hour >= 0 && hour <= 3 
+          ? "Very dangerous time to be outside. High risk of mugging and criminal activity."
+          : "Late night/early morning hours. Increased risk when walking alone.";
+        
+        alerts.push({
+          type: 'safety',
+          title: 'Safety Alert - Dangerous Hours',
+          message: message,
+          recommendation: "Avoid walking alone. Use ride services or travel in groups. Stay in well-lit areas.",
+          severity: severity
+        });
+      }
+
+      if (hour >= 6 && hour <= 8) {
+        alerts.push({
+          type: 'safety',
+          title: 'Morning Rush Hour',
+          message: "Heavy traffic hours. Be extra careful when crossing roads.",
+          recommendation: "Allow extra time for travel. Use crosswalks and stay alert.",
+          severity: 'medium'
+        });
+      }
+
+      if (hour >= 17 && hour <= 19) {
+        alerts.push({
+          type: 'safety',
+          title: 'Evening Rush Hour',
+          message: "Heavy traffic hours. Increased pedestrian and vehicle activity.",
+          recommendation: "Be extra cautious. Avoid busy roads when possible.",
+          severity: 'medium'
+        });
+      }
+
+      return alerts;
+    }
+
+    function checkWeatherAlerts(weatherData) {
+      const alerts = [];
+      const temp = weatherData.current.temp_c;
+      const condition = weatherData.current.condition.text.toLowerCase();
+      const humidity = weatherData.current.humidity;
+      const windSpeed = weatherData.current.wind_kph;
+      const uvIndex = weatherData.current.uv;
+
+      if (temp > 35) {
+        alerts.push({
+          type: 'weather',
+          title: 'Extreme Heat Warning',
+          message: `Very hot temperature: ${temp}°C. Risk of heat exhaustion.`,
+          recommendation: "Carry plenty of water. Wear light colors. Avoid prolonged sun exposure.",
+          severity: 'high'
+        });
+      } else if (temp > 30) {
+        alerts.push({
+          type: 'weather',
+          title: 'Hot Weather Advisory',
+          message: `Hot temperature: ${temp}°C. Stay hydrated.`,
+          recommendation: "Bring water. Wear sunscreen and light clothing.",
+          severity: 'medium'
+        });
+      } else if (temp < 5) {
+        alerts.push({
+          type: 'weather',
+          title: 'Cold Weather Warning',
+          message: `Very cold: ${temp}°C. Risk of hypothermia.`,
+          recommendation: "Dress warmly in layers. Cover exposed skin.",
+          severity: 'high'
+        });
+      }
+
+      if (condition.includes('rain') || condition.includes('shower') || condition.includes('drizzle')) {
+        alerts.push({
+          type: 'weather',
+          title: 'Rain Alert',
+          message: "It's raining. Slippery conditions expected.",
+          recommendation: "Carry an umbrella. Wear non-slip shoes. Drive carefully.",
+          severity: 'medium'
+        });
+      }
+
+      if (condition.includes('snow') || condition.includes('blizzard')) {
+        alerts.push({
+          type: 'weather',
+          title: 'Snow Alert',
+          message: "Snow conditions. Very slippery roads and walkways.",
+          recommendation: "Wear warm, waterproof clothing. Use caution when walking/driving.",
+          severity: 'high'
+        });
+      }
+
+      if (condition.includes('thunderstorm') || condition.includes('storm')) {
+        alerts.push({
+          type: 'weather',
+          title: 'Storm Warning',
+          message: "Thunderstorm conditions. Lightning risk.",
+          recommendation: "Stay indoors if possible. Avoid open areas and tall objects.",
+          severity: 'high'
+        });
+      }
+
+      if (windSpeed > 40) {
+        alerts.push({
+          type: 'weather',
+          title: 'High Wind Alert',
+          message: `Strong winds: ${windSpeed} km/h. Falling objects risk.`,
+          recommendation: "Secure loose items. Be careful near trees and buildings.",
+          severity: 'high'
+        });
+      }
+
+      if (uvIndex > 7) {
+        alerts.push({
+          type: 'weather',
+          title: 'High UV Index',
+          message: `UV Index: ${uvIndex}. High risk of sunburn.`,
+          recommendation: "Use SPF 30+ sunscreen. Wear sunglasses and hat.",
+          severity: 'medium'
+        });
+      }
+
+      if (humidity > 80) {
+        alerts.push({
+          type: 'weather',
+          title: 'High Humidity',
+          message: `Very humid: ${humidity}%. Feels hotter than actual temperature.`,
+          recommendation: "Stay hydrated. Take breaks in air conditioning.",
+          severity: 'low'
+        });
+      }
+
+      return alerts;
+    }
+
+    function displayAlerts(alerts) {
+      const container = document.getElementById('alerts-list');
+      const noAlertsDiv = document.getElementById('no-alerts');
+      const alertCount = document.getElementById('alert-count');
+      
+      container.innerHTML = '';
+      
+      if (alerts.length === 0) {
+        noAlertsDiv.style.display = 'block';
+        alertCount.textContent = '0';
+        return;
+      }
+
+      noAlertsDiv.style.display = 'none';
+      alertCount.textContent = alerts.length;
+      
+      alerts.forEach(alert => {
+        const alertElement = createAlertElement(alert);
+        container.appendChild(alertElement);
+      });
+    }
+
+    function updateTimeAndAlerts() {
+      const now = new Date();
+      const hour = now.getHours();
+      const timeString = now.toLocaleTimeString();
+      
+      document.getElementById('current-time').textContent = `Last updated: ${timeString}`;
+      
+      const timeAlerts = checkTimeBasedAlerts(hour);
+      
+      let allAlerts = [...timeAlerts];
+      if (weatherData) {
+        const weatherAlerts = checkWeatherAlerts(weatherData);
+        allAlerts = [...allAlerts, ...weatherAlerts];
+      }
+      
+      currentAlerts = allAlerts;
+      displayAlerts(allAlerts);
+    }
+
+    function fetchWeatherAndAlerts() {
+      if (navigator.geolocation && userLocation) {
+        const lat = userLocation.lat;
+        const lon = userLocation.lon;
+        const weatherAPI = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}`;
+        
+        fetch(weatherAPI)
+          .then(response => response.json())
+          .then(data => {
+            weatherData = data;
+            
+            const temp = data.current.temp_c;
+            const condition = data.current.condition.text;
+            const humidity = data.current.humidity;
+            
+            document.getElementById('weather-details').textContent = 
+              `${temp}°C • ${condition} • ${humidity}% humidity`;
+            
+            updateTimeAndAlerts();
+          })
+          .catch(error => {
+            document.getElementById('weather-details').textContent = 'Weather data unavailable';
+            console.error('Weather API error:', error);
+            updateTimeAndAlerts();
+          });
+      } else {
+        document.getElementById('weather-details').textContent = 'Enable location access for weather alerts';
+        updateTimeAndAlerts();
+      }
+    }
+
+    function refreshAlerts() {
+      const refreshBtn = document.querySelector('.refresh-btn');
+      refreshBtn.style.transform = 'rotate(360deg)';
+      
+      fetchWeatherAndAlerts();
+      
+      setTimeout(() => {
+        refreshBtn.style.transform = 'rotate(0deg)';
+      }, 500);
+    }
+
+    function filterAlerts(filter) {
+      const alerts = document.querySelectorAll('.alert-item');
+      const filterButtons = document.querySelectorAll('.filter-btn');
+      
+      filterButtons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      let visibleCount = 0;
+      alerts.forEach(alert => {
+        const priority = alert.getAttribute('data-priority');
+        const type = alert.getAttribute('data-type');
+        
+        if (filter === 'all' || 
+            priority === filter || 
+            type === filter) {
+          alert.style.display = 'flex';
+          visibleCount++;
+        } else {
+          alert.style.display = 'none';
+        }
+      });
+      
+      document.getElementById('alert-count').textContent = visibleCount;
+      document.getElementById('no-alerts').style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    document.getElementById('alertSearch').addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase();
+      const alerts = document.querySelectorAll('.alert-item');
+      let visibleCount = 0;
+      
+      alerts.forEach(alert => {
+        const title = alert.querySelector('.alert-title').textContent.toLowerCase();
+        const message = alert.querySelector('.alert-message').textContent.toLowerCase();
+        const recommendation = alert.querySelector('.alert-recommendation');
+        const recText = recommendation ? recommendation.textContent.toLowerCase() : '';
+        
+        if (title.includes(searchTerm) || 
+            message.includes(searchTerm) || 
+            recText.includes(searchTerm)) {
+          alert.style.display = 'flex';
+          visibleCount++;
+        } else {
+          alert.style.display = 'none';
+        }
+      });
+      
+      document.getElementById('alert-count').textContent = visibleCount;
+      document.getElementById('no-alerts').style.display = visibleCount === 0 ? 'block' : 'none';
+    });
+
+    document.addEventListener('click', function(e) {
+      if (e.target.closest('.alert-item')) {
+        const alertItem = e.target.closest('.alert-item');
+        alertItem.style.opacity = '0.7';
+        alertItem.style.transform = 'scale(0.98)';
+        
+        setTimeout(() => {
+          alertItem.style.opacity = '1';
+          alertItem.style.transform = 'scale(1)';
+        }, 200);
+      }
+    });
+
+    // Initialize alerts
+    updateTimeAndAlerts();
+  </script>
+</body>
+</html>
